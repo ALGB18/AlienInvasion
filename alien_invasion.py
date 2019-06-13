@@ -31,9 +31,6 @@ def run_game():
     # Creamos un grupo para almacenar los proyectiles
     bullets = Group()
     aliens = Group()
-    alien_request_count = 0
-    # Inicializamos la clase del thread para la generacion de aliens
-    alien_generation_thread = ag.AlienGeneration(settings, aliens)
 
     # Creamos una nave
     ship = Ship(screen, settings)
@@ -42,25 +39,17 @@ def run_game():
     start_time = time.time()
     # Empezamos el bucle principal del juego
     while True:
-        # Comprobamos si hay aliens para generar y si no nos excedemos del maximo de aliens
-        if alien_generation_thread.generated_aliens and len(aliens) < settings.max_aliens_in_game:
-            print("DEBUG$$> An alien has just spawned")
-            alien_to_create = alien_generation_thread.generated_aliens.pop()
-            # Generamos un alien
-            new_alien = Alien(settings, screen, alien_to_create)
-            aliens.add(new_alien)
-
-        # Generamos un alien con una probabilidad del 10%
+        # Generamos un alien con una probabilidad del 10% y si no superamos
+        # el limite de aliens en pantalla
         random_number = r.randint(0, 9)
-        if random_number == 9 and alien_request_count < alien_generation_thread.max_requests:      
+        if random_number == 9 and len(aliens) < settings.max_aliens_in_game:
             x_position, y_position, position =\
                 ag.start_position_algorithm("standart_alien", settings, aliens)
-            alien_generation_thread.generated_aliens.append(
-                ag.GeneratedAlien(x_position, y_position, position))
-            print("DEBUG$$> An alien request has been generated")
-            alien_request_count += 1
+            new_alien = Alien(settings, screen, x_position, y_position, position)
+            aliens.add(new_alien)
+            print("DEBUG$$> An alien has been generated")
         # Escuchamos eventos de teclado y raton
-        gf.check_events(settings, screen, ship, bullets, alien_generation_thread)
+        gf.check_events(settings, screen, ship, bullets)
         ship.update()
         gf.update_aliens(aliens, ship, settings)
         gf.update_bullets(bullets, ship, settings)

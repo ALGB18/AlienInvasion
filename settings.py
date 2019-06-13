@@ -3,8 +3,6 @@ Este modulo solamente contendra cosas relativas a las
 opciones del juego
 """
 
-import pygame
-
 class Settings:
     """
     En esta clase estaran las opciones del juego
@@ -27,8 +25,9 @@ class Settings:
         self.ship_speed_factor = 12
 
         # Opciones de los aliens
-        self.standart_alien_speed_factor = 7.5
-        self.max_aliens_in_game = 15
+        self.standart_alien_speed_factor = 8
+        self.max_aliens_in_game = 5
+        self.distancia_minima_nave = 100
 
         # Opciones de los lasers
         self.bullet_speed_factor = 15

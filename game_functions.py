@@ -4,12 +4,11 @@ a Alien Invasion funcionar, y para que sea mas
 facil de modificar
 """
 import sys
-import time
 import pygame
 
 from bullet import Bullet
 
-def check_events(settings, screen, ship, bullets, alien_generation_thread):
+def check_events(settings, screen, ship, bullets):
     """
     Responder ante eventos del teclado y raton
     """
@@ -17,12 +16,12 @@ def check_events(settings, screen, ship, bullets, alien_generation_thread):
         if event.type == pygame.QUIT:
             sys.exit()
         elif event.type == pygame.KEYDOWN:
-            check_keydown_events(event, settings, screen, ship, bullets, alien_generation_thread)
+            check_keydown_events(event, settings, screen, ship, bullets)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, ship)
 
 
-def check_keydown_events(event, settings, screen, ship, bullets, alien_generation_thread):
+def check_keydown_events(event, settings, screen, ship, bullets):
     """
     Responder ante pulsaciones de teclado
     """
@@ -93,7 +92,10 @@ def update_bullets(bullets, ship, settings):
             bullets.remove(bullet)
 
 def update_aliens(aliens, ship, settings):
-    aliens.update(ship, settings)
+    """
+    Se encarga de actualizar la posicion de los aliens en la pantalla
+    """
+    aliens.update(ship, settings, aliens)
 
 
 def fire_bullet(settings, screen, ship, bullets):
