@@ -73,23 +73,35 @@ def update_screen(settings, screen, ship, aliens, bullets):
     # Redibuja todos los proyectiles detras de la nave y aliens
     for bullet in bullets.sprites():
         bullet.draw_bullet()
+    for alien in aliens:
+        for bullet in alien.bullets.sprites():
+            bullet.draw_bullet()
     ship.blitme()
     aliens.draw(screen)
     # Hace visible la pantalla mas reciente
     pygame.display.flip()
 
-def update_bullets(bullets, ship, settings):
+def update_bullets(bullets, ship, aliens, settings):
     """
     Actualiza la posicion de los proyectiles y se deshace
     de los proyectiles viejos (se salen de la pantalla)
     """
-    # Actualizamos los proyectiles
+    # Actualizamos los proyectiles de la nave del jugador
     bullets.update(ship)
-    # Nos deshacemos de los proyectiles que hayan desaparecido
+    # Nos desacemos de los proyectiles que esten fuera de la pantalla
     for bullet in bullets.copy():
         if bullet.rect.bottom <= 0 or bullet.rect.top >= settings.screen_height \
             or bullet.rect.right <= 0 or bullet.rect.left >= settings.screen_width:
             bullets.remove(bullet)
+
+    # Actualizamos los proyectiles de los aliens
+    for alien in aliens:
+        alien.bullets.update(ship)
+        for bullet in alien.bullets.copy():
+            # Nos desacemos de los proyectiles que esten fuera de la pantalla
+            if bullet.rect.bottom <= 0 or bullet.rect.top >= settings.screen_height \
+                or bullet.rect.right <= 0 or bullet.rect.left >= settings.screen_width:
+                alien.bullets.remove(bullet)
 
 def update_aliens(aliens, ship, settings):
     """
@@ -104,5 +116,17 @@ def fire_bullet(settings, screen, ship, bullets):
     incluimos en el grupo de proyectiles
     """
     if len(bullets) < settings.bullets_allowed:
-        new_bullet = Bullet(settings, screen, ship)
+        if ship.position == 0:
+            new_bullet = Bullet(settings, screen, ship.position,
+                                ship.rect.centerx, ship.rect.top)
+        elif ship.position == 1:
+            new_bullet = Bullet(settings, screen, ship.position,
+                                ship.rect.left, ship.rect.centery)
+        elif ship.position == 2:
+            new_bullet = Bullet(settings, screen, ship.position,
+                                ship.rect.centerx, ship.rect.bottom)
+        elif ship.position == 3:
+            new_bullet = Bullet(settings, screen, ship.position, 
+                                ship.rect.right, ship.rect.centery)
+
         bullets.add(new_bullet)

@@ -1,7 +1,8 @@
 """
 Modulo central del videojuego:
     - Bucle principal
-    -
+    - Codigo principal (main)
+    - Para correr el videojuego se debe ejecutar este archivo
 """
 import random as r
 import time
@@ -9,13 +10,13 @@ import pygame
 
 from pygame.sprite import Group
 
-
 from settings import Settings
 from ship import Ship
 from alien import Alien
 
 import game_functions as gf
 import alien_generation as ag
+
 def run_game():
     """
     Funcion que contiene el bucle principal del juego,
@@ -29,11 +30,13 @@ def run_game():
     pygame.display.set_caption("Alien Invasion")
 
     # Creamos un grupo para almacenar los proyectiles
-    bullets = Group()
+    ship_bullets = Group()
     aliens = Group()
 
     # Creamos una nave
     ship = Ship(screen, settings)
+
+    # Para el contador de fps
     seconds = 1.0
     counter = 0
     start_time = time.time()
@@ -49,19 +52,23 @@ def run_game():
             aliens.add(new_alien)
             print("DEBUG$$> An alien has been generated")
         # Escuchamos eventos de teclado y raton
-        gf.check_events(settings, screen, ship, bullets)
+        gf.check_events(settings, screen, ship, ship_bullets)
+        # Actualizamos la nave, aliens y proyectiles
         ship.update()
         gf.update_aliens(aliens, ship, settings)
-        gf.update_bullets(bullets, ship, settings)
-        #print("FPS: " + str(clock.get_fps()))
+        gf.update_bullets(ship_bullets, ship, aliens, settings)
         # Actualizamos la pantalla
-        gf.update_screen(settings, screen, ship, aliens, bullets)
+        gf.update_screen(settings, screen, ship, aliens, ship_bullets)
+        # Incrementamos el contador de frames
         counter += 1
+        # Imprimimos los fps (solo se muestran por segundo)
         if (time.time() - start_time) > seconds:
             print("FPS: ", counter / (time.time() - start_time))
             counter = 0
             start_time = time.time()
+        # Limitamos los fps a 60
         clock.tick(settings.fps)
 
+# Codigo principal (main)
 if __name__ == "__main__":
     run_game()

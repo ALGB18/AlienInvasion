@@ -4,37 +4,6 @@ ubicacion inicial de los aliens en la pantalla
 """
 import math
 import random as r
-import threading
-
-class AlienGeneration():
-    """
-    Clase encargada de correr en segundo plano
-    (daemon) la seleccion de la ubicacion de
-    aparicion de los aliens
-    """
-    def __init__(self, settings, aliens):
-        super().__init__()
-        self.settings = settings
-        self.running = True
-        self.aliens = aliens
-        self.requests = []
-        self.generated_aliens = []
-        self.max_requests = 5
-        self.mutex_requests = threading.Lock()
-        self.mutex_generated_aliens = threading.Lock()
-        self.mutex_aliens = threading.Lock()
-        self.mutex_running = threading.Lock()
-
-class GeneratedAlien():
-    """
-    Esta clase define la estructura de los objetos
-    que iran en la lista de generated aliens
-    """
-    def __init__(self, x_position, y_position, position):
-        self.x_position = x_position
-        self.y_position = y_position
-        self.position = position
-
 
 def start_position_algorithm(request, settings, aliens):
     """

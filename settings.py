@@ -27,7 +27,7 @@ class Settings:
         # Opciones de los aliens
         self.standart_alien_speed_factor = 8
         self.max_aliens_in_game = 5
-        self.distancia_minima_nave = 100
+        self.minimun_degrees_to_shoot = 30
 
         # Opciones de los lasers
         self.bullet_speed_factor = 15
