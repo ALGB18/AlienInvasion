@@ -19,11 +19,17 @@ class Alien(Sprite):
         # Cargamos la imagen del alien y establece su posicion inicial
         self.image = pygame.image.load(".\\resources\\alien_estandar.bmp")
         self.rect = self.image.get_rect()
+        self.health = 50
+        self.max_health = 50
+        self.show_health_bar = False
+        self.health_rect = None
+        self.health_rect_background = None
         # Definimos el conjunto de proyectiles y el maximo de estos en pantalla
         # Ademas definimos un timer para limitar la cadencia de los disparos
         self.bullets = Group()
-        self.maximun_bullets = 5
+        self.maximun_bullets = 4
         self.timer = 0.0
+        self.bullet_damage = 10
         # Los aliens comienzan cerca de la parte superior izquierda
         # de la pantalla
         self.rect.x = x_position
@@ -80,6 +86,11 @@ class Alien(Sprite):
                     self.rect.centerx += vector_unitario[0] * settings.standart_alien_speed_factor
                     self.rect.centery += vector_unitario[1] * settings.standart_alien_speed_factor
                     self.coordinates_to_move = None
+                    if self.show_health_bar:
+                        self.health_rect_background.left = self.rect.left
+                        self.health_rect_background.centery = self.rect.centery + 40
+                        self.health_rect.left = self.rect.left
+                        self.health_rect.centery = self.rect.centery + 40
             else:
                 # No ocurren colisiones asi que movemos al alien normalmente
                 # Necesitamos calcular el vector unitario para determinar la direccion en la que
@@ -88,6 +99,11 @@ class Alien(Sprite):
                 if new_position:
                     self.rect.centerx += new_position[0] * settings.standart_alien_speed_factor
                     self.rect.centery += new_position[1] * settings.standart_alien_speed_factor
+                    if self.show_health_bar:
+                        self.health_rect_background.left = self.rect.left
+                        self.health_rect_background.centery = self.rect.centery + 40
+                        self.health_rect.left = self.rect.left
+                        self.health_rect.centery = self.rect.centery + 40
 
             # Comprobamos si podemos disparar (no nos excedemos del maximo de balas en pantalla)
             if len(self.bullets) < self.maximun_bullets:
@@ -99,7 +115,7 @@ class Alien(Sprite):
                     bullet_parameters = self.check_for_shooting(ship, settings)
                     if bullet_parameters:
                         new_bullet = bullet.Bullet(self.settings, self.screen, bullet_parameters[0],
-                                               bullet_parameters[1], bullet_parameters[2])
+                                               bullet_parameters[1], bullet_parameters[2], self.bullet_damage)
                         self.bullets.add(new_bullet)
 
         else:
@@ -125,6 +141,9 @@ class Alien(Sprite):
         Dibujamos el alien en su posicion actual
         """
         self.screen.blit(self.image, self.rect)
+        if self.show_health_bar:
+            pygame.draw.rect(self.screen, (255, 0, 0), self.health_rect_background)
+            pygame.draw.rect(self.screen, (0, 255, 0), self.health_rect)
 
     def collide(self, sprite_group):
         """
@@ -208,3 +227,24 @@ class Alien(Sprite):
             degrees > (90 - settings.minimun_degrees_to_shoot) and degrees < 90:
             return (position, center, top)
         return False
+
+    def hit(self, ship, aliens):
+        """
+        Se ejecuta cuando un alien es acertado. Tras el primer
+        impacto dibujamos su barra de vida
+        """
+        if self.on_screen:
+            self.health -= ship.bullet_damage
+            if self.health <= 0:
+                self.destroy(aliens)
+            self.show_health_bar = True
+            if self.show_health_bar:
+                self.health_rect_background = pygame.Rect(0, 0, 48, 10)
+                self.health_rect = pygame.Rect(0, 0, 48 * self.health/self.max_health, 10)
+                self.health_rect_background.left = self.rect.left
+                self.health_rect_background.centery = self.rect.centery + 40
+                self.health_rect.left = self.rect.left
+                self.health_rect.centery = self.rect.centery + 40
+        
+    def destroy(self, aliens):
+        aliens.remove(self)

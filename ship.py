@@ -2,7 +2,7 @@
 Modulo que contiene la clase nave
 """
 import pygame
-
+import sys
 class Ship():
     """
     Clase que define las propiedades de la
@@ -24,6 +24,15 @@ class Ship():
         self.rect = self.image[0].get_rect()
         self.position = 0
         self.screen_rect = screen.get_rect()
+        self.health = 100
+        self.max_health = 100
+        self.health_rect = pygame.Rect(0, 0, 200, 50)
+        self.health_rect_background = pygame.Rect(0, 0, 200, 50)
+        self.health_rect.left = self.settings.screen_width - 225
+        self.health_rect.top = self.settings.screen_height - 75
+        self.health_rect_background.left = self.settings.screen_width - 225
+        self.health_rect_background.top = self.settings.screen_height - 75
+        self.bullet_damage = 10
         # Posicionar cada nave que creemos en la parte inferior central de la pantalla
         self.rect.centerx = self.screen_rect.centerx
         self.rect.bottom = self.screen_rect.bottom
@@ -62,3 +71,19 @@ class Ship():
         Dibuja el barco en su posicion actual
         """
         self.screen.blit(self.image[self.position], self.rect)
+        pygame.draw.rect(self.screen, (255, 0, 0), self.health_rect_background)
+        pygame.draw.rect(self.screen, (0, 255, 0), self.health_rect)
+
+    def hit(self, bullet):
+        """
+        Ejecutamos este metodo cuando un alien alcanza con
+        un proyectil a la nave del jugador
+        """
+        self.health -= bullet.damage
+        if self.health <= 0:
+            print("FIN DEL JUEGO")
+            sys.exit()
+
+        self.health_rect = pygame.Rect(0, 0, 200 * self.health/self.max_health, 50)
+        self.health_rect.left = self.settings.screen_width - 225
+        self.health_rect.top = self.settings.screen_height - 75
