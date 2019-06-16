@@ -37,16 +37,28 @@ def check_keydown_events(event, settings, screen, ship, bullets):
         fire_bullet(settings, screen, ship, bullets)
     elif event.key == pygame.K_UP:
         ship.position = 0
-        ship.rect = ship.image[ship.position].get_rect()
+        if ship.inmune:
+            ship.rect = ship.image_inmune[ship.position].get_rect()
+        else:
+            ship.rect = ship.image[ship.position].get_rect()
     elif event.key == pygame.K_LEFT:
         ship.position = 1
-        ship.rect = ship.image[ship.position].get_rect()
+        if ship.inmune:
+            ship.rect = ship.image_inmune[ship.position].get_rect()
+        else:
+            ship.rect = ship.image[ship.position].get_rect()
     elif event.key == pygame.K_DOWN:
         ship.position = 2
-        ship.rect = ship.image[ship.position].get_rect()
+        if ship.inmune:
+            ship.rect = ship.image_inmune[ship.position].get_rect()
+        else:
+            ship.rect = ship.image[ship.position].get_rect()
     elif event.key == pygame.K_RIGHT:
         ship.position = 3
-        ship.rect = ship.image[ship.position].get_rect()
+        if ship.inmune:
+            ship.rect = ship.image_inmune[ship.position].get_rect()
+        else:
+            ship.rect = ship.image[ship.position].get_rect()
     elif event.key == pygame.K_ESCAPE:
         sys.exit()
 
@@ -63,7 +75,7 @@ def check_keyup_events(event, ship):
     elif event.key == pygame.K_s:
         ship.moving_down = False
 
-def update_screen(settings, screen, ship, aliens, bullets):
+def update_screen(settings, screen, player, aliens, bullets):
     """
     Actualiza las imagenes de la pantalla y mostrar
     en la nueva pantalla
@@ -76,13 +88,15 @@ def update_screen(settings, screen, ship, aliens, bullets):
     for alien in aliens:
         for bullet in alien.bullets.sprites():
             bullet.draw_bullet()
-    ship.blitme()
+    player.current_ship.blitme()
     for alien in aliens:
         alien.blitme()
+
+    screen.blit(player.lifes_text, (settings.screen_width - 325, settings.screen_height - 65))
     # Hace visible la pantalla mas reciente
     pygame.display.flip()
 
-def update_bullets(bullets, ship, aliens, settings):
+def update_bullets(bullets, ship, aliens, settings, player):
     """
     Actualiza la posicion de los proyectiles y se deshace
     de los proyectiles viejos (se salen de la pantalla)
@@ -109,7 +123,7 @@ def update_bullets(bullets, ship, aliens, settings):
 
         collisions = pygame.sprite.spritecollide(ship, alien.bullets, True)
         for collition in collisions:
-            ship.hit(collition)
+            ship.hit(collition, player)
 
 def update_aliens(aliens, ship, settings):
     """

@@ -2,6 +2,7 @@
 Este modulo solamente contendra cosas relativas a las
 opciones del juego
 """
+import pygame
 
 class Settings:
     """
@@ -20,6 +21,10 @@ class Settings:
         self.bg_color = (0, 0, 0)
         self.fps = 60
         self.updates_per_second = 60
+
+        # Fuente para los textos
+        pygame.font.init()
+        self.my_font = pygame.font.SysFont('Berlin Sans FB', 30)
 
         # Opciones de la nave del jugador
         self.ship_speed_factor = 12

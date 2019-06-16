@@ -8,7 +8,7 @@ class Ship():
     Clase que define las propiedades de la
     nave que pilota el jugador
     """
-    def __init__(self, screen, settings):
+    def __init__(self, screen, settings, inmune=False):
         """
         Inicializamos la nave, indicando su posicion
         inicial
@@ -17,15 +17,27 @@ class Ship():
         self.settings = settings
         # Carga la imagen de la nave
         self.image = []
+        self.image_inmune = []
         self.image.append(pygame.image.load(".\\resources\\ship.bmp"))       # Apuntando arriba
         self.image.append(pygame.image.load(".\\resources\\ship90.bmp"))     # Apuntando izquierda
         self.image.append(pygame.image.load(".\\resources\\ship180.bmp"))    # Apuntando abajo
         self.image.append(pygame.image.load(".\\resources\\ship270.bmp"))    # Apuntando derecha
-        self.rect = self.image[0].get_rect()
+        self.image_inmune.append(pygame.image.load(".\\resources\\ship_inmune.bmp"))
+        self.image_inmune.append(pygame.image.load(".\\resources\\ship90_inmune.bmp"))
+        self.image_inmune.append(pygame.image.load(".\\resources\\ship180_inmune.bmp"))
+        self.image_inmune.append(pygame.image.load(".\\resources\\ship270_inmune.bmp"))
+        self.inmune = inmune
+        if self.inmune:
+            self.rect = self.image_inmune[0].get_rect()
+        else:
+            self.rect = self.image[0].get_rect()
         self.position = 0
         self.screen_rect = screen.get_rect()
         self.health = 100
         self.max_health = 100
+        self.health_text = self.settings.my_font.render(str(self.health) + " / " +
+                                                        str(self.max_health), False,
+                                                        (255, 255, 255))
         self.health_rect = pygame.Rect(0, 0, 200, 50)
         self.health_rect_background = pygame.Rect(0, 0, 200, 50)
         self.health_rect.left = self.settings.screen_width - 225
@@ -33,6 +45,7 @@ class Ship():
         self.health_rect_background.left = self.settings.screen_width - 225
         self.health_rect_background.top = self.settings.screen_height - 75
         self.bullet_damage = 10
+        self.time = pygame.time.get_ticks()
         # Posicionar cada nave que creemos en la parte inferior central de la pantalla
         self.rect.centerx = self.screen_rect.centerx
         self.rect.bottom = self.screen_rect.bottom
@@ -59,6 +72,9 @@ class Ship():
         if self.moving_left and self.rect.left > self.screen_rect.left:
             self.centerx -= self.settings.ship_speed_factor
 
+        if self.inmune:
+            if pygame.time.get_ticks() - self.time > 5000:
+                self.inmune = False
         # Actualizamos el objeto rectangulo a partir de los valores de
         # self.centerx (posicion en el eje x) y self.centery (posicion
         # en el eje y)
@@ -70,19 +86,32 @@ class Ship():
         """
         Dibuja el barco en su posicion actual
         """
-        self.screen.blit(self.image[self.position], self.rect)
+        if self.inmune:
+            self.screen.blit(self.image_inmune[self.position], self.rect)
+        else:
+            self.screen.blit(self.image[self.position], self.rect)
         pygame.draw.rect(self.screen, (255, 0, 0), self.health_rect_background)
         pygame.draw.rect(self.screen, (0, 255, 0), self.health_rect)
+        self.screen.blit(self.health_text, (self.settings.screen_width - 175, 
+                                            self.settings.screen_height - 67))
 
-    def hit(self, bullet):
+    def hit(self, bullet, player):
         """
         Ejecutamos este metodo cuando un alien alcanza con
         un proyectil a la nave del jugador
         """
-        self.health -= bullet.damage
+        if not self.inmune:
+            self.health -= bullet.damage
+            self.health_text = self.settings.my_font.render(str(self.health) + " / " +
+                                                            str(self.max_health), False,
+                                                            (255, 255, 255))
         if self.health <= 0:
-            print("FIN DEL JUEGO")
-            sys.exit()
+            if player.lifes <=0:
+                print("FIN DEL JUEGO")
+                sys.exit()
+            else:
+                player.lifes -= 1
+                player.create_ship()
 
         self.health_rect = pygame.Rect(0, 0, 200 * self.health/self.max_health, 50)
         self.health_rect.left = self.settings.screen_width - 225

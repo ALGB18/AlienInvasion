@@ -11,8 +11,8 @@ import pygame
 from pygame.sprite import Group
 
 from settings import Settings
-from ship import Ship
 from alien import Alien
+from player import Player
 
 import game_functions as gf
 import alien_generation as ag
@@ -24,6 +24,7 @@ def run_game():
     """
     # Iniciar el juego, opciones, y objeto pantalla
     pygame.init()
+    
     clock = pygame.time.Clock()
     settings = Settings()
     screen = pygame.display.set_mode((settings.screen_width, settings.screen_height))
@@ -33,8 +34,7 @@ def run_game():
     ship_bullets = Group()
     aliens = Group()
 
-    # Creamos una nave
-    ship = Ship(screen, settings)
+    player = Player(screen, settings)
 
     # Para el contador de fps
     seconds = 1.0
@@ -52,13 +52,13 @@ def run_game():
             aliens.add(new_alien)
             print("DEBUG$$> An alien has been generated")
         # Escuchamos eventos de teclado y raton
-        gf.check_events(settings, screen, ship, ship_bullets)
+        gf.check_events(settings, screen, player.current_ship, ship_bullets)
         # Actualizamos la nave, aliens y proyectiles
-        ship.update()
-        gf.update_aliens(aliens, ship, settings)
-        gf.update_bullets(ship_bullets, ship, aliens, settings)
+        player.current_ship.update()
+        gf.update_aliens(aliens, player.current_ship, settings)
+        gf.update_bullets(ship_bullets, player.current_ship, aliens, settings, player)
         # Actualizamos la pantalla
-        gf.update_screen(settings, screen, ship, aliens, ship_bullets)
+        gf.update_screen(settings, screen, player, aliens, ship_bullets)
         # Incrementamos el contador de frames
         counter += 1
         # Imprimimos los fps (solo se muestran por segundo)
