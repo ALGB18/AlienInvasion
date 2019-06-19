@@ -11,7 +11,7 @@ class Player():
     def __init__(self, screen, settings):
         self.screen = screen
         self.settings = settings
-        self.lifes = 3
+        self.lifes = 8
         self.lifes_text = settings.my_font.render("Lifes: " + str(self.lifes), False, (255, 255, 255))
         self.current_ship = Ship(screen, settings)
 

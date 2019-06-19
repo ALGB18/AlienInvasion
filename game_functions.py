@@ -75,7 +75,8 @@ def check_keyup_events(event, ship):
     elif event.key == pygame.K_s:
         ship.moving_down = False
 
-def update_screen(settings, screen, player, aliens, bullets):
+def update_screen(settings, screen, player, aliens, bullets, round_number,
+                  round_ended, timer, round_end_time):
     """
     Actualiza las imagenes de la pantalla y mostrar
     en la nueva pantalla
@@ -91,7 +92,25 @@ def update_screen(settings, screen, player, aliens, bullets):
     player.current_ship.blitme()
     for alien in aliens:
         alien.blitme()
+    
+    # Escribimos en pantalla el numero de ronda
+    round_text = settings.my_font.render("Round " + str(round_number), False, (255, 255, 255))
+    screen.blit(round_text, (10, 10))
 
+    # Si la ronda ha terminado, imprimimos el tiempo restante para que empiece la siguiente
+    if round_ended:
+        next_round_text =\
+            settings.my_font.render("Next round: " +
+                                    str(round_end_time - int((pygame.time.get_ticks() - timer) / 1000))
+                                                  + " s", False, (255, 255, 255))
+        screen.blit(next_round_text, (settings.screen_width - 300, 10))
+        # Notificamos durante 5 segundos el final de la ronda al jugador (en medio de la pantalla)
+        if pygame.time.get_ticks() - timer <= 5000:
+            round_end_text = settings.my_font.render("Round " + str(round_number) + " ended. " +
+                                                     "You can now open the shop",
+                                                     False, (255, 255, 255))
+            screen.blit(round_end_text, (settings.screen_width/2 - 300, settings.screen_height/2))
+    # Escribimos en pantala las vidas del jugador
     screen.blit(player.lifes_text, (settings.screen_width - 325, settings.screen_height - 65))
     # Hace visible la pantalla mas reciente
     pygame.display.flip()

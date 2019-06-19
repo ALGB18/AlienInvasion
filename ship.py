@@ -92,7 +92,7 @@ class Ship():
             self.screen.blit(self.image[self.position], self.rect)
         pygame.draw.rect(self.screen, (255, 0, 0), self.health_rect_background)
         pygame.draw.rect(self.screen, (0, 255, 0), self.health_rect)
-        self.screen.blit(self.health_text, (self.settings.screen_width - 175, 
+        self.screen.blit(self.health_text, (self.settings.screen_width - 175,
                                             self.settings.screen_height - 67))
 
     def hit(self, bullet, player):
