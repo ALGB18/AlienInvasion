@@ -19,8 +19,9 @@ class Alien(Sprite):
         # Cargamos la imagen del alien y establece su posicion inicial
         self.image = pygame.image.load(".\\resources\\alien_estandar.bmp")
         self.rect = self.image.get_rect()
-        self.health = 50
-        self.max_health = 50
+        self.speed_factor = settings.standart_alien_speed_factor
+        self.max_health = settings.standart_alien_health
+        self.health = self.max_health
         self.show_health_bar = False
         self.health_rect = None
         self.health_rect_background = None
@@ -29,7 +30,8 @@ class Alien(Sprite):
         self.bullets = Group()
         self.maximun_bullets = 4
         self.timer = 0.0
-        self.bullet_damage = 10
+        self.bullet_damage = settings.standart_alien_bullet_damage
+        self.bullet_speed_factor = settings.alien_bullet_speed_factor
         # Los aliens comienzan cerca de la parte superior izquierda
         # de la pantalla
         self.rect.x = x_position
@@ -44,7 +46,9 @@ class Alien(Sprite):
     def update(self, ship, settings, alien_group):
         """
         Movemos al alien en funcion de la posicion de
-        la nave del jugador
+        la nave del jugador y calculamos la direccion
+        de disparo de proyectiles en caso de que
+        vayamos a disparar
         """
         # Si la nave del jugador es visible en la pantalla,
         # movemos el alien por los dos ejes a la vez
@@ -83,8 +87,8 @@ class Alien(Sprite):
                 except ZeroDivisionError:
                     return
                 if vector_unitario:
-                    self.rect.centerx += vector_unitario[0] * settings.standart_alien_speed_factor
-                    self.rect.centery += vector_unitario[1] * settings.standart_alien_speed_factor
+                    self.rect.centerx += vector_unitario[0] * self.speed_factor
+                    self.rect.centery += vector_unitario[1] * self.speed_factor
                     self.coordinates_to_move = None
                     if self.show_health_bar:
                         self.health_rect_background.left = self.rect.left
@@ -97,8 +101,8 @@ class Alien(Sprite):
                 # mover el alien
                 new_position = self.position_towards_destination()
                 if new_position:
-                    self.rect.centerx += new_position[0] * settings.standart_alien_speed_factor
-                    self.rect.centery += new_position[1] * settings.standart_alien_speed_factor
+                    self.rect.centerx += new_position[0] * self.speed_factor
+                    self.rect.centery += new_position[1] * self.speed_factor
                     if self.show_health_bar:
                         self.health_rect_background.left = self.rect.left
                         self.health_rect_background.centery = self.rect.centery + 40
@@ -115,7 +119,8 @@ class Alien(Sprite):
                     bullet_parameters = self.check_for_shooting(ship, settings)
                     if bullet_parameters:
                         new_bullet = bullet.Bullet(self.settings, self.screen, bullet_parameters[0],
-                                               bullet_parameters[1], bullet_parameters[2], self.bullet_damage)
+                                                   bullet_parameters[1], bullet_parameters[2],
+                                                   self.bullet_damage, self.bullet_speed_factor)
                         self.bullets.add(new_bullet)
 
         else:
@@ -245,6 +250,10 @@ class Alien(Sprite):
                 self.health_rect_background.centery = self.rect.centery + 40
                 self.health_rect.left = self.rect.left
                 self.health_rect.centery = self.rect.centery + 40
-        
+
     def destroy(self, aliens):
+        """
+        Destruye un alien, eliminandolo de la
+        lista de aliens
+        """
         aliens.remove(self)

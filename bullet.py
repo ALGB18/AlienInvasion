@@ -10,7 +10,7 @@ class Bullet(Sprite):
     """
     Una clase que maneja los proyectiles disparadas desde la nave
     """
-    def __init__(self, settings, screen, position, center, top, damage):
+    def __init__(self, settings, screen, position, center, top, damage, speed):
         """
         Creamos una bala en la posicion actial de la nave
         """
@@ -33,7 +33,7 @@ class Bullet(Sprite):
         self.x_position = float(self.rect.x)
         self.y_position = float(self.rect.y)
         self.color = settings.bullet_color
-        self.speed_factor = settings.bullet_speed_factor
+        self.speed_factor = speed
         self.damage = damage
 
     def update(self):

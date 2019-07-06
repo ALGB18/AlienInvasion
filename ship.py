@@ -1,8 +1,9 @@
 """
 Modulo que contiene la clase nave
 """
-import pygame
 import sys
+import pygame
+
 class Ship():
     """
     Clase que define las propiedades de la
@@ -33,8 +34,9 @@ class Ship():
             self.rect = self.image[0].get_rect()
         self.position = 0
         self.screen_rect = screen.get_rect()
-        self.health = 100
-        self.max_health = 100
+        self.speed_factor = settings.ship_speed_factor
+        self.max_health = settings.ship_maximun_health
+        self.health = self.max_health
         self.health_text = self.settings.my_font.render(str(self.health) + " / " +
                                                         str(self.max_health), False,
                                                         (255, 255, 255))
@@ -44,7 +46,8 @@ class Ship():
         self.health_rect.top = self.settings.screen_height - 75
         self.health_rect_background.left = self.settings.screen_width - 225
         self.health_rect_background.top = self.settings.screen_height - 75
-        self.bullet_damage = 10
+        self.bullet_damage = settings.ship_bullet_damage
+        self.bullet_speed_factor = settings.ship_bullet_speed_factor
         self.time = pygame.time.get_ticks()
         # Posicionar cada nave que creemos en la parte inferior central de la pantalla
         self.rect.centerx = self.screen_rect.centerx
@@ -64,13 +67,13 @@ class Ship():
         movimiento
         """
         if self.moving_up and self.rect.top > self.screen_rect.top:
-            self.centery -= self.settings.ship_speed_factor
+            self.centery -= self.speed_factor
         if self.moving_down and self.rect.bottom < self.screen_rect.bottom:
-            self.centery += self.settings.ship_speed_factor
+            self.centery += self.speed_factor
         if self.moving_right and self.rect.right < self.screen_rect.right:
-            self.centerx += self.settings.ship_speed_factor
+            self.centerx += self.speed_factor
         if self.moving_left and self.rect.left > self.screen_rect.left:
-            self.centerx -= self.settings.ship_speed_factor
+            self.centerx -= self.speed_factor
 
         if self.inmune:
             if pygame.time.get_ticks() - self.time > 5000:
@@ -80,6 +83,13 @@ class Ship():
         # en el eje y)
         self.rect.centerx = self.centerx
         self.rect.centery = self.centery
+
+        self.health_text = self.settings.my_font.render(str(self.health) + " / " +
+                                                        str(self.max_health), False,
+                                                        (255, 255, 255))
+        self.health_rect = pygame.Rect(0, 0, 200 * self.health/self.max_health, 50)
+        self.health_rect.left = self.settings.screen_width - 225
+        self.health_rect.top = self.settings.screen_height - 75
 
 
     def blitme(self):
@@ -102,17 +112,11 @@ class Ship():
         """
         if not self.inmune:
             self.health -= bullet.damage
-            self.health_text = self.settings.my_font.render(str(self.health) + " / " +
-                                                            str(self.max_health), False,
-                                                            (255, 255, 255))
+
         if self.health <= 0:
-            if player.lifes <=0:
+            if player.lifes <= 0:
                 print("FIN DEL JUEGO")
                 sys.exit()
             else:
                 player.lifes -= 1
                 player.create_ship()
-
-        self.health_rect = pygame.Rect(0, 0, 200 * self.health/self.max_health, 50)
-        self.health_rect.left = self.settings.screen_width - 225
-        self.health_rect.top = self.settings.screen_height - 75

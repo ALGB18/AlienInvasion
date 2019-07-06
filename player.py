@@ -17,6 +17,15 @@ class Player():
 
 
     def create_ship(self):
-        self.lifes_text = self.settings.my_font.render("Lifes: " + str(self.lifes), False, (255, 255, 255))
+        """
+        Creamos una nave con invulnerabilidad temporal
+        """
         self.current_ship = Ship(self.screen, self.settings, inmune=True)
+    
+    def update(self):
+        """
+        Actualizamos el estado del jugador, entre otras cosas el
+        texto que muestra las vidas
+        """
+        self.lifes_text = self.settings.my_font.render("Lifes: " + str(self.lifes), False, (255, 255, 255))
         

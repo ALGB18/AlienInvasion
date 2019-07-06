@@ -27,15 +27,20 @@ class Settings:
         self.my_font = pygame.font.SysFont('Berlin Sans FB', 30)
 
         # Opciones de la nave del jugador
-        self.ship_speed_factor = 12
+        self.ship_speed_factor = 7
+        self.ship_bullet_speed_factor = 15
+        self.ship_maximun_health = 100
+        self.ship_bullet_damage = 10
 
         # Opciones de los aliens
+        self.alien_bullet_speed_factor = 10
         self.standart_alien_speed_factor = 8
         self.max_aliens_in_game = 5
         self.minimun_degrees_to_shoot = 30
+        self.standart_alien_health = 50
+        self.standart_alien_bullet_damage = 10
 
-        # Opciones de los lasers
-        self.bullet_speed_factor = 15
+        # Opciones generales de los lasers
         self.bullet_width = 3
         self.bullet_height = 15
         self.bullet_color = 255, 0, 0

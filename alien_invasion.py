@@ -4,7 +4,6 @@ Modulo central del videojuego:
     - Codigo principal (main)
     - Para correr el videojuego se debe ejecutar este archivo
 """
-import random as r
 import time
 import pygame
 
@@ -38,7 +37,7 @@ def run_game():
     round_ended = False
     round_manager = RoundManager()
     timer = pygame.time.get_ticks()
-    shop_manager = Shop()
+    shop_manager = Shop(screen, settings)
 
     player = Player(screen, settings)
 
@@ -79,25 +78,29 @@ def run_game():
             # que podamos contar 30 segundos
             if round_ended:
                 print("DEBUG$$> Fin de ronda")
+                shop_manager.lifes_progress = 0
                 timer = pygame.time.get_ticks()
         else:
             # Comprobamos que hallamos excedido los 30 segundos entre rondas
             # para empezar una nueva
             if pygame.time.get_ticks() - timer > shop_manager.time_between_rounds * 1000:
                 print("DEBUG$$> Comienzo de nueva ronda")
+                shop_manager.shop_open = False
                 # Iniciamos una nueva ronda
                 round_manager.new_round()
                 round_ended = False
 
         # Escuchamos eventos de teclado y raton
-        gf.check_events(settings, screen, player.current_ship, ship_bullets)
+        gf.check_events(settings, screen, player.current_ship, ship_bullets, 
+                        shop_manager, round_ended, player)
         # Actualizamos la nave, aliens y proyectiles
         player.current_ship.update()
+        player.update()
         gf.update_aliens(aliens, player.current_ship, settings)
         gf.update_bullets(ship_bullets, player.current_ship, aliens, settings, player)
         # Actualizamos la pantalla
         gf.update_screen(settings, screen, player, aliens, ship_bullets, round_manager.num_round,
-                         round_ended, timer, shop_manager.time_between_rounds)
+                         round_ended, timer, shop_manager.time_between_rounds, shop_manager)
         # Incrementamos el contador de frames
         counter += 1
         # Imprimimos los fps (solo se muestran por segundo)

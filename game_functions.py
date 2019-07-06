@@ -8,7 +8,7 @@ import pygame
 
 from bullet import Bullet
 
-def check_events(settings, screen, ship, bullets):
+def check_events(settings, screen, ship, bullets, shop, round_ended, player):
     """
     Responder ante eventos del teclado y raton
     """
@@ -19,7 +19,8 @@ def check_events(settings, screen, ship, bullets):
             check_keydown_events(event, settings, screen, ship, bullets)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, ship)
-
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            check_mouse_button_down_events(shop, round_ended, ship, player)
 
 def check_keydown_events(event, settings, screen, ship, bullets):
     """
@@ -75,8 +76,43 @@ def check_keyup_events(event, ship):
     elif event.key == pygame.K_s:
         ship.moving_down = False
 
+def check_mouse_button_down_events(shop, round_ended, ship, player):
+    """
+    Responder ante eventos de raton
+    """
+    mouse_position = pygame.mouse.get_pos()
+    aux = pygame.Rect(0, 0, 1, 1)
+    aux.centerx = mouse_position[0]
+    aux.centery = mouse_position[1]
+    if round_ended:
+        if aux.colliderect(shop.shop_icon_rect):
+            shop.shop_open = True
+            return
+        if shop.shop_open:
+            if aux.colliderect(shop.exit_icon_rect):
+                shop.shop_open = False
+                return
+            if aux.colliderect(shop.shop_items_rects[0][shop.shop_progress[0]]):
+                shop.upgrade("repair", ship, player)
+                return
+            elif aux.colliderect(shop.shop_items_rects[1][shop.shop_progress[1]]):
+                shop.upgrade("speed", ship, player)
+                return
+            elif aux.colliderect(shop.shop_items_rects[2][shop.shop_progress[2]]):
+                shop.upgrade("health", ship, player)
+                return
+            elif aux.colliderect(shop.shop_items_rects[3][shop.shop_progress[3]]):
+                shop.upgrade("damage", ship, player)
+                return
+            elif aux.colliderect(shop.shop_items_rects[4][shop.shop_progress[4]]):
+                shop.upgrade("bpm", ship, player)
+                return
+            elif aux.colliderect(shop.shop_items_rects[5][shop.shop_progress[5]]):
+                shop.upgrade("life", ship, player)
+                return
+
 def update_screen(settings, screen, player, aliens, bullets, round_number,
-                  round_ended, timer, round_end_time):
+                  round_ended, timer, round_end_time, shop):
     """
     Actualiza las imagenes de la pantalla y mostrar
     en la nueva pantalla
@@ -104,12 +140,15 @@ def update_screen(settings, screen, player, aliens, bullets, round_number,
                                     str(round_end_time - int((pygame.time.get_ticks() - timer) / 1000))
                                                   + " s", False, (255, 255, 255))
         screen.blit(next_round_text, (settings.screen_width - 300, 10))
+        screen.blit(shop.shop_icon, shop.shop_icon_rect)
+        
         # Notificamos durante 5 segundos el final de la ronda al jugador (en medio de la pantalla)
         if pygame.time.get_ticks() - timer <= 5000:
             round_end_text = settings.my_font.render("Round " + str(round_number) + " ended. " +
                                                      "You can now open the shop",
                                                      False, (255, 255, 255))
             screen.blit(round_end_text, (settings.screen_width/2 - 300, settings.screen_height/2))
+        shop.blitme()
     # Escribimos en pantala las vidas del jugador
     screen.blit(player.lifes_text, (settings.screen_width - 325, settings.screen_height - 65))
     # Hace visible la pantalla mas reciente
@@ -159,15 +198,19 @@ def fire_bullet(settings, screen, ship, bullets):
     if len(bullets) < settings.bullets_allowed:
         if ship.position == 0:
             new_bullet = Bullet(settings, screen, ship.position,
-                                ship.rect.centerx, ship.rect.top, ship.bullet_damage)
+                                ship.rect.centerx, ship.rect.top, ship.bullet_damage,
+                                ship.bullet_speed_factor)
         elif ship.position == 1:
             new_bullet = Bullet(settings, screen, ship.position,
-                                ship.rect.left, ship.rect.centery, ship.bullet_damage)
+                                ship.rect.left, ship.rect.centery, ship.bullet_damage,
+                                ship.bullet_speed_factor)
         elif ship.position == 2:
             new_bullet = Bullet(settings, screen, ship.position,
-                                ship.rect.centerx, ship.rect.bottom, ship.bullet_damage)
+                                ship.rect.centerx, ship.rect.bottom, ship.bullet_damage,
+                                ship.bullet_speed_factor)
         elif ship.position == 3:
             new_bullet = Bullet(settings, screen, ship.position,
-                                ship.rect.right, ship.rect.centery, ship.bullet_damage)
+                                ship.rect.right, ship.rect.centery, ship.bullet_damage,
+                                ship.bullet_speed_factor)
 
         bullets.add(new_bullet)
